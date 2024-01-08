@@ -1,0 +1,71 @@
+version: '3.3'
+
+services:
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - react
+    
+  react:
+    build:
+      context: ./frontend
+    container_name: react
+    stdin_open: true
+    command: sh -c "npm run dev"
+    ports:
+      - 5173:5173
+    volumes:
+      - ./frontend:/app/frontend
+
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    restart: always
+    environment:
+      MYSQL_DATABASE: "testdb"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - '3306:3306'
+    expose:
+      - 3306
+    volumes:
+      - sql-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uadmin", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app-tier
+  
+  django:
+    build:
+      context: ./backend
+    container_name: django
+    command: sh -c "python3 manage.py migrate --noinput && python manage.py runserver"
+    stdin_open: true
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend/:/backend/
+      - sql-db:/var/lib/mysql
+    depends_on:
+      - mysqldb
+    networks:
+      - app-tier
+    restart: always
+  
+
+volumes:
+  sql-db:
+
+networks:
+  app-tier:
+    driver: bridge
