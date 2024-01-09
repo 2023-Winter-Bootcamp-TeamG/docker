@@ -11,16 +11,16 @@ services:
   #   depends_on:
   #     - react
 
-  react:
-    build:
-      context: ./frontend
-    container_name: react
-    stdin_open: true
-    command: sh -c "yarn dev"
-    ports:
-      - 5173:5173
-    volumes:
-      - ./frontend:/app/frontend
+  # react:
+  #   build:
+  #     context: ./frontend
+  #   container_name: react
+  #   stdin_open: true
+  #   command: sh -c "yarn dev"
+  #   ports:
+  #     - 5173:5173
+  #   volumes:
+  #     - ./frontend:/app/frontend
 
   mysqldb:
     image: mysql:latest
@@ -46,22 +46,22 @@ services:
     networks:
       - app-tier
 
-  django:
-    build:
-      context: ./backend
-    container_name: django
-    command: sh -c "python3 manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
-    stdin_open: true
-    ports:
-      - 8000:8000
-    volumes:
-      - ./backend/:/backend/
-      - sql-db:/var/lib/mysql
-    depends_on:
-      - mysqldb
-    networks:
-      - app-tier
-    restart: always
+  # django:
+  #   build:
+  #     context: ./backend
+  #   container_name: django
+  #   command: sh -c "python3 manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+  #   stdin_open: true
+  #   ports:
+  #     - 8000:8000
+  #   volumes:
+  #     - ./backend/:/backend/
+  #     - sql-db:/var/lib/mysql
+  #   depends_on:
+  #     - mysqldb
+  #   networks:
+  #     - app-tier
+  #   restart: always
 
 volumes:
   sql-db:
