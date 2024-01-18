@@ -5,9 +5,8 @@ services:
   rabbitmq:
     image: "rabbitmq:3-management"
     container_name: rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+    env_file:
+      - .env
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -20,10 +19,8 @@ services:
     build: ./backend
     container_name: celery_worker
     command: celery -A myproject worker --loglevel=info
-    environment:
-      - CELERY_BROKER_URL=amqp://user:password@rabbitmq:5672/
     env_file:
-      - ./backend/.env 
+      - .env 
     depends_on:
       - rabbitmq
       - mysqldb
@@ -33,26 +30,23 @@ services:
       - app-tier
 
 
-#  react:
-#    build:
-#      context: ./frontend
-#    container_name: react
-#    stdin_open: true
-#    command: sh -c "yarn dev"
-#    ports:
-#      - 5173:5173
-#    volumes:
-#      - ./frontend:/app/frontend
+  react:
+    build:
+      context: ./frontend
+    container_name: react
+    stdin_open: true
+    command: sh -c "yarn dev"
+    ports:
+      - 5173:5173
+    volumes:
+      - ./frontend:/app/frontend
 
   mysqldb:
     image: mysql:latest
     container_name: mysqldb
     restart: always
-    environment:
-      MYSQL_DATABASE: 'testdb'
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+    env_file:
+      - .env
     ports:
       - '3306:3306'
     volumes:
@@ -101,7 +95,7 @@ services:
       - app-tier
     restart: always
     env_file:
-      - ../backend/.env
+      - .env
     expose:
       - 8001
 
