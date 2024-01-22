@@ -2,6 +2,70 @@ version: '3.3'
 
 services:
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus  
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      # - ./prometheus:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=90d # 90일보다 오래된 metrics는 삭제
+      - --storage.tsdb.retention.size=10GB # 10GB를 넘을 시 오래된 metrics 삭제
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/proemtheus/consoles
+      - --web.enable-admin-api
+    networks:
+      - app-tier
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin # grafana 사용자 이름
+      - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - app-tier
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    networks:
+      - app-tier
+
+
+  # alertmanager:
+  #   image: prom/alertmanager
+  #   container_name: alertmanager
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9093:9093"
+  #   volumes:
+  #     - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  #   command:
+  #     - '--config.file=/etc/alertmanager/alertmanager.yml'
+  #     - '--storage.path=/alertmanager'
+  #   networks:
+  #     - app-tier
+
   nginx:
     build:
       context: ./nginx
@@ -16,7 +80,6 @@ services:
       - django
     networks:
       - app-tier
-
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -44,8 +107,7 @@ services:
       - ./backend:/backend
     networks:
       - app-tier
-
-
+  
   react:
     build:
       context: ./frontend
@@ -78,19 +140,19 @@ services:
     networks:
       - app-tier
 
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    links:
-      - mysqldb
-    ports:
-      - 8080:80
-    environment:
-      PMA_ARBITRARY: 1
-      PMA_HOST: mysqldb
-      PMA_PORT: 3306
-    networks:
-      - app-tier
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   restart: always
+  #   links:
+  #     - mysqldb
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     PMA_ARBITRARY: 1
+  #     PMA_HOST: mysqldb
+  #     PMA_PORT: 3306
+  #   networks:
+  #     - app-tier
 
   django:
     build:
@@ -116,10 +178,11 @@ services:
       - .env
     expose:
       - 8001
-
+      
 volumes:
   rabbitmq_data:
   sql-db:
+  grafana-data:
 
 networks:
   app-tier:

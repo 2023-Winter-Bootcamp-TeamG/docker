@@ -1,9 +1,6 @@
 # 공식 NGINX 이미지를 기반으로 설정
 FROM nginx:latest
 
-# 기본 NGINX 구성 파일 제거
-RUN rm /etc/nginx/conf.d/default.conf
-
 # 사용자 정의 NGINX 구성 파일 복사
 COPY nginx.conf /etc/nginx/nginx.conf
 
