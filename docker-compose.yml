@@ -53,19 +53,19 @@ services:
       - app-tier
 
 
-  alertmanager:
-    image: prom/alertmanager
-    container_name: alertmanager
-    restart: unless-stopped
-    ports:
-      - "9093:9093"
-    volumes:
-      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-    networks:
-      - app-tier
+  # alertmanager:
+  #   image: prom/alertmanager
+  #   container_name: alertmanager
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9093:9093"
+  #   volumes:
+  #     - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  #   command:
+  #     - '--config.file=/etc/alertmanager/alertmanager.yml'
+  #     - '--storage.path=/alertmanager'
+  #   networks:
+  #     - app-tier
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -88,7 +88,7 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://user:password@rabbitmq:5672/
     env_file:
-      - ./backend/.env 
+      - ./.env 
     depends_on:
       - rabbitmq
       - mysqldb
@@ -131,19 +131,19 @@ services:
     networks:
       - app-tier
 
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    links:
-      - mysqldb
-    ports:
-      - 8080:80
-    environment:
-      PMA_ARBITRARY: 1
-      PMA_HOST: mysqldb
-      PMA_PORT: 3306
-    networks:
-      - app-tier
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   restart: always
+  #   links:
+  #     - mysqldb
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     PMA_ARBITRARY: 1
+  #     PMA_HOST: mysqldb
+  #     PMA_PORT: 3306
+  #   networks:
+  #     - app-tier
 
   django:
     build:
@@ -166,7 +166,7 @@ services:
       - app-tier
     restart: always
     env_file:
-      - ../backend/.env
+      - ./.env
     expose:
       - 8001
 
