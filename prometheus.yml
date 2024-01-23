@@ -1,6 +1,6 @@
 global:
-  scrape_interval: 15s # 기본적으로 5초마다 스크랩합니다.
-  evaluation_interval: 15s # 5초마다 규칙을 평가합니다.
+  scrape_interval: 15s # 기본적으로 15초마다 스크랩합니다.
+  evaluation_interval: 15s # 15초마다 규칙을 평가합니다.
 
 # alerting:
 #   alertmanagers:
