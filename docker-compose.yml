@@ -97,7 +97,7 @@ services:
   celery:
     build: ./backend
     container_name: celery_worker
-    command: celery -A myproject worker --loglevel=info
+    command: celery -A myproject worker --loglevel=info --pool=prefork
     env_file:
       - .env 
     depends_on:
