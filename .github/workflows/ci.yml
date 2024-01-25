@@ -31,7 +31,7 @@ jobs: # Job
     - name: Verify MySQL connection
       run: |
         mysql --version
-        mysql --host 127.0.0.1 --port 3306 -u ${{ secrets.DB_USER }} -p ${{ secrets.DB_PASSWORD }}
+        mysql --host 127.0.0.1 --port 3306 -u ${{ secrets.MYSQL_USER }} -p '${{ secrets.MYSQL_PASSWORD }}'
 
     # 파이썬 3.11.0 버전 설치
     - name: Set up Python 3.11.0 
