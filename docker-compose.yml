@@ -2,54 +2,54 @@ version: '3.3'
 
 services:
 
-  prometheus:
-   image: prom/prometheus
-   container_name: prometheus
-   restart: unless-stopped
-   ports:
-     - 9090:9090
-   volumes:
-     - ./prometheus.yml:/etc/prometheus/prometheus.yml
-     # - ./prometheus:/prometheus
-   command:
-     - --config.file=/etc/prometheus/prometheus.yml
-     - --storage.tsdb.path=/prometheus
-     - --storage.tsdb.retention.time=90d # 90일보다 오래된 metrics는 삭제
-     - --storage.tsdb.retention.size=10GB # 10GB를 넘을 시 오래된 metrics 삭제
-     - --web.console.libraries=/usr/share/prometheus/console_libraries
-     - --web.console.templates=/usr/share/proemtheus/consoles
-     - --web.enable-admin-api
-   networks:
-     - app-tier
-
-  grafana:
-   image: grafana/grafana
-   container_name: grafana
-   restart: unless-stopped
-   ports:
-     - 3000:3000
-   volumes:
-     - grafana-data:/var/lib/grafana
-   environment:
-     - GF_SECURITY_ADMIN_USER=admin # grafana 사용자 이름
-     - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
-     - GF_USERS_ALLOW_SIGN_UP=false
-   networks:
-     - app-tier
-
-  cadvisor:
-   image: gcr.io/cadvisor/cadvisor
-   container_name: cadvisor
-   restart: unless-stopped
-   ports:
-     - "8081:8080"
-   volumes:
-     - "/:/rootfs:ro"
-     - "/var/run:/var/run:rw"
-     - "/sys:/sys:ro"
-     - "/var/lib/docker/:/var/lib/docker:ro"
-   networks:
-     - app-tier
+#  prometheus:
+#   image: prom/prometheus
+#   container_name: prometheus
+#   restart: unless-stopped
+#   ports:
+#     - 9090:9090
+#   volumes:
+#     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#     # - ./prometheus:/prometheus
+#   command:
+#     - --config.file=/etc/prometheus/prometheus.yml
+#     - --storage.tsdb.path=/prometheus
+#     - --storage.tsdb.retention.time=90d # 90일보다 오래된 metrics는 삭제
+#     - --storage.tsdb.retention.size=10GB # 10GB를 넘을 시 오래된 metrics 삭제
+#     - --web.console.libraries=/usr/share/prometheus/console_libraries
+#     - --web.console.templates=/usr/share/proemtheus/consoles
+#     - --web.enable-admin-api
+#   networks:
+#     - app-tier
+#
+#  grafana:
+#   image: grafana/grafana
+#   container_name: grafana
+#   restart: unless-stopped
+#   ports:
+#     - 3000:3000
+#   volumes:
+#     - grafana-data:/var/lib/grafana
+#   environment:
+#     - GF_SECURITY_ADMIN_USER=admin # grafana 사용자 이름
+#     - GF_SECURITY_ADMIN_PASSWORD=admin # grafana 사용자 비밀번호
+#     - GF_USERS_ALLOW_SIGN_UP=false
+#   networks:
+#     - app-tier
+#
+#  cadvisor:
+#   image: gcr.io/cadvisor/cadvisor
+#   container_name: cadvisor
+#   restart: unless-stopped
+#   ports:
+#     - "8081:8080"
+#   volumes:
+#     - "/:/rootfs:ro"
+#     - "/var/run:/var/run:rw"
+#     - "/sys:/sys:ro"
+#     - "/var/lib/docker/:/var/lib/docker:ro"
+#   networks:
+#     - app-tier
 
 
   # alertmanager:
@@ -154,6 +154,39 @@ services:
     networks:
       - app-tier
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mongo-db:/data/db
+    networks:
+      - app-tier
+    ports:
+      - '27017:27017'
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - '8082:8081'
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+    depends_on:
+      - mongodb
+    networks:
+      - app-tier
+
   django:
     build:
       context: ./backend
@@ -171,6 +204,7 @@ services:
       - ./backend/static/:/backend/static/
     depends_on:
       - mysqldb
+      - mongodb
     networks:
       - app-tier
     restart: always
@@ -182,6 +216,7 @@ services:
 volumes:
   rabbitmq_data:
   sql-db:
+  mongo-db:
   grafana-data:
 
 networks:
