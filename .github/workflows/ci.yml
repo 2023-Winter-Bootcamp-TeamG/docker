@@ -48,6 +48,7 @@ jobs: # Job
     # 의존성 설치
     - name: Install Dependencies
       run: |
+        cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -62,6 +63,7 @@ jobs: # Job
         DB_PORT: ${{ secrets.DB_PORT }}
         
       run: |
+        cd backend
         python manage.py makemigrations
         python manage.py migrate
 
@@ -75,5 +77,6 @@ jobs: # Job
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
       run: |
+        cd backend
         mysql --host 127.0.0.1 --port 3306 -u ${{ secrets.DB_USER }} -p ${{ secrets.DB_PASSWORD }}
-        python manage.py test --settings=config.settings.test
+        python manage.py test
