@@ -61,11 +61,12 @@ jobs: # Job
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: root
-        DB_PASSWORD: '${{ secrets.DB_PASSWORD }}'
+        DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         DB_HOST: 127.0.0.1
         DB_PORT: ${{ secrets.DB_PORT }}
         
       run: |
+        cd backend
         python manage.py makemigrations
         python manage.py migrate
 
