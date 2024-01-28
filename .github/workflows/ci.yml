@@ -60,7 +60,7 @@ jobs: # Job
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DB_NAME: testdb
-        DB_USER: root
+        DB_USER: admin
         DB_PASSWORD: root
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
