@@ -76,10 +76,10 @@ jobs: # Job
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: root
-        DB_PASSWORD: '${{ secrets.MYSQL_ROOT_PASSWORD }}'
+        DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         DB_HOST: 127.0.0.1
         DB_PORT: ${{ secrets.DB_PORT }}
       run: |
         cd backend
-        mysql --host 127.0.0.1 --port 3306 -u ${{ secrets.DB_USER }} -p ${{ secrets.DB_PASSWORD }}
+        mysql --host 127.0.0.1 --port 3306 -u root -p${{ MYSQL_ROOT_PASSWORD }}
         python manage.py test
