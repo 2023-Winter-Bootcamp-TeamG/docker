@@ -59,7 +59,7 @@ jobs: # Job
     - name: Run migrations
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        DB_NAME: root
+        DB_NAME: testdb
         DB_USER: root
         DB_PASSWORD: root
         DB_HOST: 127.0.0.1
