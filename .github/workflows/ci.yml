@@ -81,5 +81,5 @@ jobs: # Job
         DB_PORT: ${{ secrets.DB_PORT }}
       run: |
         cd backend
-        mysql --host 127.0.0.1 --port 3306 -u root -p ${{ MYSQL_ROOT_PASSWORD }}
+        mysql --host 127.0.0.1 --port 3306 -u root -p ${{ secrets.DB_PASSWORD }}
         python manage.py test
