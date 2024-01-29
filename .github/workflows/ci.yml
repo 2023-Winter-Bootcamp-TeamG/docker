@@ -57,18 +57,21 @@ jobs: # Job
 
     # mysql 컨테이너에 migration, 테이블 생성
     - name: Run migrations
-      env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        DB_NAME: testdb
-        DB_USER: admin
-        DB_PASSWORD: root
-        DB_HOST: 127.0.0.1
-        DB_PORT: 3306
-        
+
       run: |
         cd backend
         python manage.py makemigrations
         python manage.py migrate
+
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        
+
 
     # 테스트 진행
     - name: Run Tests
