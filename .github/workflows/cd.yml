@@ -1,0 +1,29 @@
+name: Django CD  # workflow 이름
+on: # Event
+  pull_request:
+    types:
+      - closed
+    branches: [ main ]
+
+jobs: # Job
+  cd: # Job 이름
+    if: github.event.pull_request.merged == true # Job 실행 조건
+
+    runs-on: ubuntu-latest # Runner
+
+    steps: # Step
+
+      # ssh를 통해 EC2에 접속, 접속한 후에 실행할 스크립트 작성
+      - name: Connect to EC2 using SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.AWS_HOST}}
+          username: ${{secrets.AWS_USERNAME}}
+          key: ${{ secrets.AWS_KEY_PEM }}
+          envs: GITHUB_SHA
+          script: |
+              cd docker
+              git pull
+              sudo docker-compose down
+              sudo docker-compose pull
+              sudo docker-compose up -d --build
