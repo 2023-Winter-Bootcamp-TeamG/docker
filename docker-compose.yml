@@ -52,19 +52,19 @@ services:
      - app-tier
 
 
-  # alertmanager:
-  #   image: prom/alertmanager
-  #   container_name: alertmanager
-  #   restart: unless-stopped
-  #   ports:
-  #     - "9093:9093"
-  #   volumes:
-  #     - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
-  #   command:
-  #     - '--config.file=/etc/alertmanager/alertmanager.yml'
-  #     - '--storage.path=/alertmanager'
-  #   networks:
-  #     - app-tier
+#   alertmanager:
+#     image: prom/alertmanager
+#     container_name: alertmanager
+#     restart: unless-stopped
+#     ports:
+#       - "9093:9093"
+#     volumes:
+#       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+#     command:
+#       - '--config.file=/etc/alertmanager/alertmanager.yml'
+#       - '--storage.path=/alertmanager'
+#     networks:
+#       - app-tier
 
   nginx:
     build:
@@ -94,6 +94,16 @@ services:
     networks:
       - app-tier
 
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-tier
+
   celery:
     build: ./backend
     container_name: celery_worker
@@ -102,6 +112,7 @@ services:
       - .env 
     depends_on:
       - rabbitmq
+      - redis
       - mysqldb
     volumes:
       - ./backend:/backend
@@ -183,6 +194,7 @@ volumes:
   rabbitmq_data:
   sql-db:
   grafana-data:
+  redis_data:
 
 networks:
   app-tier:
